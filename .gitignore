@@ -24,3 +24,5 @@ yarn-error.log*
 
 /.idea
 /.firebase
+
+firebase-debug.log
