@@ -3,11 +3,15 @@ import React from 'react';
 import htmlParser from 'htmlparser';
 import axios from 'axios';
 
-const baseUrl = 'https://cors-anywhere.herokuapp.com/https://entreprenorskolen.no/students/'
+const proxyUrl = 'http://localhost:3001/'
+const originalBaseUrl = 'https://entreprenorskolen.no/students/'
+const baseUrl = `${proxyUrl}${originalBaseUrl}`
 
 const classSuffixes: {[key: string]: string} = {
-    2021: 'current-students/2021-2/',
-    2020: 'current-students/2020-2/',
+    2023: 'current-students/2023-2',
+    2022: 'current-students/2022-2/',
+    2021: 'former-students/2021-2/',
+    2020: 'former-students/2020-2/',
     2019: 'former-students/2019-2/',
     2018: 'former-students/2018-2/',
     2017: 'former-students/2017-2/',
@@ -33,23 +37,33 @@ const getData = async () => {
         .all(Object
             .keys(classSuffixes)
             .sort()
-            .map(year => axios.get<string>(`${baseUrl}${classSuffixes[year]}`, {headers: {'x-requested-with': 'esafhelg'}})))
-
-    console.log(await Promise.all(allYears.map(year => year.data).map(html => {
-       return new Promise((resolve, reject) => {
+            .map(year => axios.get<string>(`${baseUrl}${classSuffixes[year]}`).then(html => ({
+                year, 
+                html: html.data,
+            }))))
+    const parsedData = await Promise.all(allYears.map(data => {
+       return new Promise<{year: string, dom: object}>((resolve, reject) => {
            const handler = new htmlParser.DefaultHandler(function (error: Error, dom: object) {
                if (error) {
                    reject(error)
                } else {
-                   resolve(dom)
+                   resolve({year: data.year, dom})
                }
-
            });
-
            const parser = new htmlParser.Parser(handler);
-           parser.parseComplete(html)
+           parser.parseComplete(data.html)
        })
-    })))
+    }))
+   parsedData.forEach(e => {
+       if (e.year === '2014') {
+           //@ts-ignore
+           console.log(e.dom[2].children[3].children[7].children[1].children[3].children.filter((c, i) => i % 2 === 1).map(e => {
+                         //@ts-ignore
+                const children = e.children.filter((cc, ii) => ii % 2 === 1)
+               console.log(children)
+           }))
+       }
+   })
 }
 
 function App() {
