@@ -17,8 +17,8 @@
     "axios": "^0.26.0",
     "cors-anywhere": "^0.4.4",
     "express": "^4.17.1",
-    "firebase-admin": "^8.6.0",
-    "firebase-functions": "^3.3.0",
+    "firebase-admin": "^11.4.1",
+    "firebase-functions": "^3.24.1",
     "request": "^2.88.2",
     "ts-node": "^10.5.0"
   },
